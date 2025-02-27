@@ -1,0 +1,38 @@
+
+.input {
+  color: var(--black-color);
+  font-size: 42px;
+  line-height: 50.4px;
+  font-weight: 600;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  vertical-align: middle;
+  field-sizing: content;
+  min-width: 1ch;
+  max-width: 40ch;
+  box-sizing: border-box;
+  height: 50px;
+  border: none;
+  padding: none;
+  outline: none;
+
+  -moz-appearance:textfield;
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  &__wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__currency {
+    color: var(--blue-color);
+    font-size: 32px;
+    line-height: 38.4px;
+    font-weight: 600;
+    user-select: none;
+  }
+}

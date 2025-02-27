@@ -1,0 +1,26 @@
+.container {
+  width: 100%;
+  display: flex;
+  gap: 8px;
+}
+
+.percentageItem {
+  border: 1px solid var(--light-grey-color);
+  flex: 1;
+  border-radius: 10px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+
+  @media screen and (min-width: 768px) {
+    height: 30px;
+  }
+
+
+  &_active {
+    background-color: var(--blue-color);
+    color: var(--white-color);
+  }
+}

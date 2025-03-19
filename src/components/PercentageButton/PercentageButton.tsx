@@ -38,8 +38,6 @@ export const PercentageButton: FC<Props> = ({ maxValue, minValue, onClick, activ
     }
   }, [activePercentage, minValue, maxValue])
 
-  console.log({maxValue, buttonStyles})
-
   return (
     <div
       className={classes.percentageButton}

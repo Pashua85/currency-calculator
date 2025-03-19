@@ -17,40 +17,25 @@ export const Calculator: FC = () => {
   const [rubPercentage, setRubPercentage] = useState<number>(25);
   const [usdtPercentage, setUsdtPercentage] = useState<number>(25);
 
-  useEffect(() => {
-    // console.log("START POST FETCH")
-    // axios.post('https://awx.pro/b2api/change/user/pair/calc', {
-    //   "pairId": 133,
-    //   "inAmount": 1,
-    //   "outAmount": null
-    // }, {
-    //   headers: {
-    //     Serial: 'a7307e89-fbeb-4b28-a8ce-55b7fb3c32aa'
-    //   }
-    // }).then((resp) => {
-    //   console.log({resp})
-    // }).catch((err) => {
-    //   console.log({err})
-    // })
+  // useEffect(() => {
+  //   async function fetchData() {
+  //     try {
 
+  //       const resp = await axiosInstance.post('/b2api/change/user/pair/calc', {
+  //                        "pairId": 133,
+  //         "inAmount": 1,
+  //     "outAmount": null,
+  //       })
+      
+  //       console.log({resp});
+  //     } catch(err) {
+  //       console.log({errFech: err});
+  //     }
 
-    async function fetchData() {
-      try {
-        const resp = await axiosInstance.post('b2api/change/user/pair/calc',{
-                "pairId": 133,
-      "inAmount": 1,
-      "outAmount": null
-        })
-
-        console.log({resp})
-      } catch(err) {
-        console.log({errAx: err});
-      }
-
-    }
+  //   }
     
-    fetchData()
-  }, [])
+  //   fetchData()
+  // }, [])
 
   const handleChange = (value: string, currency: Currencies) => {
     const numericNewValue = parseFloat(value);  
@@ -119,7 +104,7 @@ export const Calculator: FC = () => {
         value={rubValue}
         onInputChange={handleChange}
         currency={Currencies.RUB}
-        decimalLimit={2}
+        decimalLimit={0}
         activePercentage={rubPercentage}
         onPercentageChange={handlePercentageChange}
       />

@@ -6,12 +6,14 @@ interface Props {
   value: string;
   onChange: (newValue: string) => void;
   currency: Currencies
-  min?: number
+  min: number
+  max: number
   step?: number
   decimalLimit?: number | null
+  disabled?: boolean
 }
 
-export const CustomInput: FC<Props> = ({ value, onChange, currency, min = 0, step = 1, decimalLimit = null }) => {
+export const CustomInput: FC<Props> = ({ value, onChange, currency, min, max, step = 1, decimalLimit = null, disabled = false }) => {
   const handleChange: ChangeEventHandler<HTMLInputElement> = (event) => {
     const newValue = event.target.value;
 
@@ -46,7 +48,7 @@ export const CustomInput: FC<Props> = ({ value, onChange, currency, min = 0, ste
     if (event.key === 'ArrowUp') {
       const possibleValue = parseFloat(value) + step;
       
-      if (!isNaN(possibleValue)) {
+      if (!isNaN(possibleValue) && possibleValue <= max) {
         onChange(possibleValue.toString())
       }
       return;
@@ -75,6 +77,7 @@ export const CustomInput: FC<Props> = ({ value, onChange, currency, min = 0, ste
         value={value}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
+        disabled={disabled}
       />
       <div className={classes.input__currency}>{currency}</div>
     </div>

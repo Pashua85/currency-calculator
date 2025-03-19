@@ -1,0 +1,40 @@
+.loaderContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loaderDonut {
+  animation: rotate 2s linear infinite;
+}
+
+.donutTrack {
+  stroke: rgba(0, 123, 255, 0.2); 
+}
+
+.donutIndicator {
+  stroke-linecap: round;
+  animation: dash 1.5s ease-in-out infinite;
+  transform-origin: 50% 50%;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dash {
+  0% {
+    stroke-dasharray: 0, 1000;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 200, 1000;
+    stroke-dashoffset: -50px;
+  }
+  100% {
+    stroke-dasharray: 200, 1000;
+    stroke-dashoffset: -300px;
+  }
+}

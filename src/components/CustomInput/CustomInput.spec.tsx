@@ -70,15 +70,32 @@ describe('CustomInput component', () => {
 
   });
 
+  it('prevents increasing above max with ArrowUp', () => {
+    const { getByRole } = render(<CustomInput {...props} />);
+    const input = getByRole('textbox') as HTMLInputElement;
+    fireEvent.keyDown(input, { key: 'ArrowUp' });
+    fireEvent.keyDown(input, { key: 'ArrowUp' });
+    fireEvent.keyDown(input, { key: 'ArrowUp' });
+    expect(onChangeMock).toHaveBeenCalledTimes(3);
+    expect(onChangeMock).not.toHaveBeenCalledWith('120');
+  });
+
   it('handles arrow down key correctly', () => {
     const { getByRole } = render(<CustomInput {...props} />);
     const input = getByRole('textbox') as HTMLInputElement;
     console.log('Initial Value:', input.value); 
-  
-  
     fireEvent.keyDown(input, { key: 'ArrowDown' });
     console.log('Value after ArrowDown:', input.value);
     expect(onChangeMock).toHaveBeenCalledTimes(1);
+    expect(onChangeMock).toHaveBeenCalledWith('0');
+  });
+
+  it('prevents decreasing below min with ArrowDown', () => {
+    const { getByRole } = render(<CustomInput {...props} />);
+    const input = getByRole('textbox') as HTMLInputElement;
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    expect(onChangeMock).toHaveBeenCalledTimes(2);
     expect(onChangeMock).toHaveBeenCalledWith('0');
   });
 
@@ -103,5 +120,21 @@ describe('CustomInput component', () => {
     const { getByRole } = render(<CustomInput {...localProps} />);
     const input = getByRole('textbox');
     expect(input).toBeDisabled();
+  });
+
+  it('prevents entering value below min', () => {
+    const { getByRole } = render(<CustomInput {...props} />);
+    const input = getByRole('textbox');
+    userEvent.clear(input);
+    userEvent.type(input, '-1');
+    expect(onChangeMock).not.toHaveBeenCalledWith('-1');
+  });
+
+  it('prevents entering value above max', () => {
+    const { getByRole } = render(<CustomInput {...props} />);
+    const input = getByRole('textbox');
+    userEvent.clear(input);
+    userEvent.type(input, '101');
+    expect(onChangeMock).not.toHaveBeenCalledWith('101');
   });
 });

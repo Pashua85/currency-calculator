@@ -1,14 +1,14 @@
-import { FC, useContext, useMemo } from "react"
+import { FC, useContext, useMemo } from 'react';
 import classes from './CalculatorField.module.scss';
-import { CustomInput } from "../CustomInput/CustomInput";
-import { Currencies } from "../../enums/currencies.enum";
-import { PercentageBar } from "../PercentageBar/PercentageBar";
-import { PercentageSlider } from "../PercentageSlider/PercentageSlider";
-import { useCalculatorStore } from "@/store";
-import { observer } from "mobx-react-lite";
-import CalculatorStoreContext from "@/store/CalculatorStoreContext";
-import { AmountTypes } from "@/enums";
-import { CURRENCIES } from "@/constants";
+import { CustomInput } from '../CustomInput/CustomInput';
+import { Currencies } from '../../enums/currencies.enum';
+import { PercentageBar } from '../PercentageBar/PercentageBar';
+import { PercentageSlider } from '../PercentageSlider/PercentageSlider';
+import { useCalculatorStore } from '@/store';
+import { observer } from 'mobx-react-lite';
+import CalculatorStoreContext from '@/store/CalculatorStoreContext';
+import { AmountTypes } from '@/enums';
+import { CURRENCIES } from '@/constants';
 
 interface Props {
   // value: string;
@@ -20,14 +20,28 @@ interface Props {
 }
 
 export const AltCalculatorField: FC<Props> = observer(({ amountType }) => {
-
-  const { inAmountString, outAmountString, handleInputChange, isLoaderVisible, 
-    inAmountMax, inAmountMin, outAmountMax, outAmountMin, stepIn, stepOut } = useCalculatorStore();
+  const {
+    inAmountString,
+    outAmountString,
+    handleInputChange,
+    isLoaderVisible,
+    inAmountMax,
+    inAmountMin,
+    outAmountMax,
+    outAmountMin,
+    stepIn,
+    stepOut,
+    decimalLimitIn,
+    decimalLimitOut,
+    handlePercentageChange,
+    percentageIn,
+    percentageOut,
+  } = useCalculatorStore();
 
   // const handleChange = (newValue: string, currency: Currencies) => {
   //   if (currency === Currencies.RUB) {
   //     handleInAmountChange(newValue);
-  //   } 
+  //   }
   // }
 
   // const currency = useMemo(() => {
@@ -41,6 +55,8 @@ export const AltCalculatorField: FC<Props> = observer(({ amountType }) => {
       currency: CURRENCIES[amountType],
       value: inAmountString,
       step: stepIn,
+      decimalLimit: decimalLimitIn,
+      percentage: percentageIn
     },
     [AmountTypes.OUT_AMOUNT]: {
       min: outAmountMin,
@@ -48,9 +64,10 @@ export const AltCalculatorField: FC<Props> = observer(({ amountType }) => {
       currency: CURRENCIES[amountType],
       value: outAmountString,
       step: stepOut,
-    }
-  }[amountType]
-
+      decimalLimit: decimalLimitOut,
+      percentage: percentageOut
+    },
+  }[amountType];
 
   return (
     <div className={classes.field}>
@@ -59,14 +76,20 @@ export const AltCalculatorField: FC<Props> = observer(({ amountType }) => {
         currency={propsData.currency}
         step={propsData.step}
         onChange={(newValue) => handleInputChange(newValue, amountType)}
-        decimalLimit={propsData.currency === Currencies.RUB ? 2 : 10}
+        decimalLimit={propsData.decimalLimit}
         disabled={isLoaderVisible}
         min={propsData.min ?? 0}
         max={propsData.max ?? 0}
       />
       <div className={classes.divider}></div>
-      {/* <PercentageSlider activePercentage={activePercentage} onChange={(value) => onPercentageChange(value, currency)}></PercentageSlider>
-      <PercentageBar activePercentage={activePercentage} onChange={(value) => onPercentageChange(value, currency)} /> */}
+      <PercentageSlider
+        activePercentage={propsData.percentage}
+        onChange={(value) => handlePercentageChange(value, amountType)}
+      ></PercentageSlider>
+      <PercentageBar
+        activePercentage={propsData.percentage}
+        onChange={(value) => handlePercentageChange(value, amountType)}
+      />
     </div>
-  )
-})
+  );
+});

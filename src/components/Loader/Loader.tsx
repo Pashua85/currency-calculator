@@ -1,10 +1,10 @@
-import  { FC } from 'react';
+import { FC } from 'react';
 import styles from './Loader.module.scss';
 
 interface Props {
-  size?: number,
-  thickness?: number,
-  color?: string,
+  size?: number;
+  thickness?: number;
+  color?: string;
 }
 
 export const Loader: FC<Props> = ({ size = 100, thickness = 8, color = '#168ACD' }) => {
@@ -27,7 +27,7 @@ export const Loader: FC<Props> = ({ size = 100, thickness = 8, color = '#168ACD'
           r={radius}
           stroke={color}
           strokeWidth={thickness}
-          fill="transparent"
+          fill='transparent'
         />
         <circle
           className={styles.donutIndicator}
@@ -36,7 +36,7 @@ export const Loader: FC<Props> = ({ size = 100, thickness = 8, color = '#168ACD'
           r={radius}
           stroke={color}
           strokeWidth={thickness}
-          fill="transparent"
+          fill='transparent'
           strokeDasharray={circumference}
           strokeDashoffset={dashOffset}
         />
@@ -44,4 +44,3 @@ export const Loader: FC<Props> = ({ size = 100, thickness = 8, color = '#168ACD'
     </div>
   );
 };
-

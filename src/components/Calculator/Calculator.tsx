@@ -1,10 +1,10 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useState } from 'react';
 import classes from './Calculator.module.scss';
-import { CalculatorField } from "../CalculatorField/CalculatorField";
-import { Currencies } from "../../enums/currencies.enum";
-import {Decimal} from "decimal.js-light"
-import axios from "axios";
-import axiosInstance from "../../axiosIstance";
+import { CalculatorField } from '../CalculatorField/CalculatorField';
+import { Currencies } from '../../enums/currencies.enum';
+import { Decimal } from 'decimal.js-light';
+import axios from 'axios';
+import axiosInstance from '../../axiosIstance';
 
 const EXCHANGE_RATE = 100;
 const hundredDecimal = new Decimal(100);
@@ -26,62 +26,67 @@ export const Calculator: FC = () => {
   //         "inAmount": 1,
   //     "outAmount": null,
   //       })
-      
+
   //       console.log({resp});
   //     } catch(err) {
   //       console.log({errFech: err});
   //     }
 
   //   }
-    
+
   //   fetchData()
   // }, [])
 
   const handleChange = (value: string, currency: Currencies) => {
-    const numericNewValue = parseFloat(value);  
+    const numericNewValue = parseFloat(value);
     const isNewValueNaN = isNaN(numericNewValue);
 
     if (isNewValueNaN && currency === Currencies.RUB) {
       setRubValue(value);
       setUsdtValue('0');
-      setWholeValueInUsdt(0)
+      setWholeValueInUsdt(0);
       return;
     }
 
     if (isNewValueNaN && currency === Currencies.USTD) {
       setUsdtValue(value);
       setRubValue('0');
-      setWholeValueInUsdt(0)
+      setWholeValueInUsdt(0);
       return;
     }
 
     const decimalValue = new Decimal(numericNewValue);
     const rubPercentageDecimal = new Decimal(rubPercentage);
     const usdtPercentageDecimal = new Decimal(usdtPercentage);
-    
+
     if (currency === Currencies.RUB) {
       setRubValue(value);
       const wholeValueInUsdtDecimal = decimalValue
         .dividedBy(rubPercentageDecimal)
         .times(hundredDecimal)
-        .dividedBy(exchangeRateDecimal)
+        .dividedBy(exchangeRateDecimal);
       setWholeValueInUsdt(wholeValueInUsdtDecimal.toNumber());
 
       setUsdtValue(
         wholeValueInUsdtDecimal.dividedBy(hundredDecimal).times(usdtPercentageDecimal).toString()
-      )
+      );
       return;
     }
 
-    const wholeValueInUsdtDecimal = decimalValue
-      .dividedBy(usdtPercentage)
-      .times(hundredDecimal)
+    const wholeValueInUsdtDecimal = decimalValue.dividedBy(usdtPercentage).times(hundredDecimal);
     setWholeValueInUsdt(wholeValueInUsdtDecimal.toNumber());
 
-    const rubValueDecimal = wholeValueInUsdtDecimal.dividedBy(hundredDecimal).times(rubPercentageDecimal).times(exchangeRateDecimal);
-    setRubValue(rubValueDecimal.modulo(1).toNumber() === 0 ? rubValueDecimal.toString() : rubValueDecimal.toFixed(2));
+    const rubValueDecimal = wholeValueInUsdtDecimal
+      .dividedBy(hundredDecimal)
+      .times(rubPercentageDecimal)
+      .times(exchangeRateDecimal);
+    setRubValue(
+      rubValueDecimal.modulo(1).toNumber() === 0
+        ? rubValueDecimal.toString()
+        : rubValueDecimal.toFixed(2)
+    );
     setUsdtValue(value);
-  }
+  };
 
   const handlePercentageChange = (value: number, currency: Currencies) => {
     const wholeValueInUsdtDecimal = new Decimal(wholeValueInUsdt);
@@ -89,14 +94,23 @@ export const Calculator: FC = () => {
 
     if (currency === Currencies.RUB) {
       setRubPercentage(value);
-      const rubValueDecimal = wholeValueInUsdtDecimal.dividedBy(hundredDecimal).times(percentageDecimal).times(exchangeRateDecimal);
-      setRubValue(rubValueDecimal.modulo(1).toNumber() === 0 ? rubValueDecimal.toString() : rubValueDecimal.toFixed(2));
-      return
+      const rubValueDecimal = wholeValueInUsdtDecimal
+        .dividedBy(hundredDecimal)
+        .times(percentageDecimal)
+        .times(exchangeRateDecimal);
+      setRubValue(
+        rubValueDecimal.modulo(1).toNumber() === 0
+          ? rubValueDecimal.toString()
+          : rubValueDecimal.toFixed(2)
+      );
+      return;
     }
 
-    setUsdtValue(wholeValueInUsdtDecimal.dividedBy(hundredDecimal).times(percentageDecimal).toString());
+    setUsdtValue(
+      wholeValueInUsdtDecimal.dividedBy(hundredDecimal).times(percentageDecimal).toString()
+    );
     setUsdtPercentage(value);
-  }
+  };
 
   return (
     <div className={classes.calculator__wrapper}>
@@ -116,5 +130,5 @@ export const Calculator: FC = () => {
         onPercentageChange={handlePercentageChange}
       />
     </div>
-  )
-}
+  );
+};

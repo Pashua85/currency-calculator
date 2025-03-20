@@ -1,6 +1,6 @@
 export interface CalcResponseData {
-  inAmount: string,
-  outAmount: string,
-  isStraight: boolean,
-  price: [string, string],
+  inAmount: string;
+  outAmount: string;
+  isStraight: boolean;
+  price: [string, string];
 }

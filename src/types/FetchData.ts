@@ -1,3 +1,3 @@
-import { CalcRequestData } from "@/interfaces";
+import { CalcRequestData } from '@/interfaces';
 
 export type FetchData = Omit<CalcRequestData, 'pairId'>;

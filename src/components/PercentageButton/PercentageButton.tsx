@@ -1,5 +1,5 @@
-import { FC, useMemo } from "react";
-import classes from './PercentageButton.module.scss'
+import { FC, useMemo } from 'react';
+import classes from './PercentageButton.module.scss';
 
 interface Props {
   maxValue: number;
@@ -8,8 +8,7 @@ interface Props {
   activePercentage: number;
 }
 
-export const PercentageButton: FC<Props> = ({ maxValue, minValue, onClick, activePercentage}) => {
-
+export const PercentageButton: FC<Props> = ({ maxValue, minValue, onClick, activePercentage }) => {
   const buttonStyles = useMemo(() => {
     let percentage = 0;
 
@@ -24,7 +23,7 @@ export const PercentageButton: FC<Props> = ({ maxValue, minValue, onClick, activ
     if (activePercentage >= minValue && activePercentage <= maxValue) {
       const width = maxValue - minValue;
       const valueWidth = activePercentage - minValue;
-      percentage = valueWidth / width * 100;
+      percentage = (valueWidth / width) * 100;
     }
 
     return {
@@ -33,10 +32,9 @@ export const PercentageButton: FC<Props> = ({ maxValue, minValue, onClick, activ
       },
       text: {
         backgroundImage: `linear-gradient(to right, #FFFFFF, #FFFFFF ${percentage}%, #168ACD ${percentage}%)`,
-      }
-
-    }
-  }, [activePercentage, minValue, maxValue])
+      },
+    };
+  }, [activePercentage, minValue, maxValue]);
 
   return (
     <div
@@ -48,5 +46,5 @@ export const PercentageButton: FC<Props> = ({ maxValue, minValue, onClick, activ
         {`${maxValue} %`}
       </div>
     </div>
-  )
-}
+  );
+};

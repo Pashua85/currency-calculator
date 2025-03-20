@@ -1,28 +1,50 @@
-import { ChangeEventHandler, FC, KeyboardEventHandler } from "react"
+import { ChangeEventHandler, ClipboardEventHandler, FC, KeyboardEventHandler } from 'react';
 import classes from './CustomInput.module.scss';
-import { Currencies } from "../../enums/currencies.enum";
+import { Currencies } from '../../enums/currencies.enum';
+import Decimal from 'decimal.js-light';
+import { addStep, subtractStep } from '@/utils';
 
 interface Props {
   value: string;
   onChange: (newValue: string) => void;
-  currency: Currencies
-  min: number
-  max: number
-  step?: number
-  decimalLimit?: number | null
-  disabled?: boolean
+  currency: Currencies;
+  min: number;
+  max: number;
+  step?: number;
+  decimalLimit?: number | null;
+  disabled?: boolean;
 }
 
-export const CustomInput: FC<Props> = ({ value, onChange, currency, min, max, step = 1, decimalLimit = null, disabled = false }) => {
-  const handleChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    const newValue = event.target.value;
+export const CustomInput: FC<Props> = ({
+  value,
+  onChange,
+  currency,
+  min,
+  max,
+  step = 15,
+  decimalLimit = null,
+  disabled = false,
+}) => {
+  const handleChange = (newValue: string) => {
+    const newValueNum = parseFloat(newValue);
 
-    if (typeof decimalLimit === 'number' && newValue.length > value.length && newValue.split('.')[1]?.length > decimalLimit) {
+    if (
+      typeof decimalLimit === 'number' &&
+      newValue.length > value.length &&
+      newValue.split('.')[1]?.length > decimalLimit
+    ) {
       return;
     }
 
-    onChange(newValue);
-  }
+    if (!isNaN(newValueNum) && newValueNum >= min && newValueNum <= max) {
+      onChange(newValue);
+    }
+  };
+
+  const handleChangeEvent: ChangeEventHandler<HTMLInputElement> = (event) => {
+    const newValue = event.target.value;
+    handleChange(newValue);
+  };
 
   const handleKeyDown: KeyboardEventHandler<HTMLInputElement> = (event) => {
     if (event.key === '0' && value === '0') {
@@ -37,7 +59,7 @@ export const CustomInput: FC<Props> = ({ value, onChange, currency, min, max, st
     }
 
     if (event.key === 'ArrowDown') {
-      const possibleValue = parseFloat(value) - step;
+      const possibleValue = subtractStep(value, step);
 
       if (!isNaN(possibleValue) && possibleValue >= min) {
         onChange(possibleValue.toString());
@@ -46,15 +68,20 @@ export const CustomInput: FC<Props> = ({ value, onChange, currency, min, max, st
     }
 
     if (event.key === 'ArrowUp') {
-      const possibleValue = parseFloat(value) + step;
-      
+      const possibleValue = addStep(value, step);
+
       if (!isNaN(possibleValue) && possibleValue <= max) {
-        onChange(possibleValue.toString())
+        onChange(possibleValue.toString());
       }
       return;
     }
 
-    if ([',', '.'].includes(event.key) && ((value.match(/[,.]/g)) || value === '')) {
+    if ([',', '.'].includes(event.key) && (value.match(/[,.]/g) || value === '')) {
+      event.preventDefault();
+      return;
+    }
+
+    if ([',', '.'].includes(event.key) && !decimalLimit) {
       event.preventDefault();
       return;
     }
@@ -65,21 +92,34 @@ export const CustomInput: FC<Props> = ({ value, onChange, currency, min, max, st
       return;
     }
 
-    if (!event.key.match(/[0-9.]/g) && !['Backspace', 'ArrowRight', 'ArrowLeft', 'Tab'].includes(event.key)) {
+    if (
+      !event.key.match(/[0-9.]/g) &&
+      !['Backspace', 'ArrowRight', 'ArrowLeft', 'Tab'].includes(event.key)
+    ) {
       event.preventDefault();
     }
-  }
+  };
+
+  const handlePaste: ClipboardEventHandler<HTMLInputElement> = (event) => {
+    const pastedText = event.clipboardData.getData('text');
+    const possibleValue = new Decimal(pastedText).toNumber();
+
+    if (!isNaN(possibleValue)) {
+      handleChange(pastedText);
+    }
+  };
 
   return (
     <div className={classes.input__wrapper}>
       <input
         className={classes.input}
         value={value}
-        onChange={handleChange}
+        onChange={handleChangeEvent}
         onKeyDown={handleKeyDown}
         disabled={disabled}
+        onPaste={handlePaste}
       />
       <div className={classes.input__currency}>{currency}</div>
     </div>
-  )
-}
+  );
+};

@@ -1,6 +1,6 @@
-import { FC } from "react";
-import classes from './PercentageBar.module.scss'
-import { PercentageButton } from "../PercentageButton/PercentageButton";
+import { FC } from 'react';
+import classes from './PercentageBar.module.scss';
+import { PercentageButton } from '../PercentageButton/PercentageButton';
 
 const percentages: number[] = [25, 50, 75, 100];
 
@@ -13,7 +13,7 @@ export const PercentageBar: FC<Props> = ({ activePercentage, onChange }) => {
   return (
     <div className={classes.container}>
       {percentages.map((item, i, arr) => (
-        <PercentageButton 
+        <PercentageButton
           key={item}
           activePercentage={activePercentage}
           onClick={onChange}
@@ -22,5 +22,5 @@ export const PercentageBar: FC<Props> = ({ activePercentage, onChange }) => {
         />
       ))}
     </div>
-  )
-}
+  );
+};

@@ -1,5 +1,5 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -12,9 +12,9 @@ export default defineConfig({
   server: {
     proxy: {
       '/b2api': {
-      target: 'https://awx.pro',
-      changeOrigin: true,
-      secure: false,
+        target: 'https://awx.pro',
+        changeOrigin: true,
+        secure: false,
       },
     },
   },
@@ -23,4 +23,4 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-})
+});

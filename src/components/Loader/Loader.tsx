@@ -10,7 +10,7 @@ interface Props {
 export const Loader: FC<Props> = ({ size = 100, thickness = 8, color = '#168ACD' }) => {
   const radius = size / 2 - thickness / 2;
   const circumference = 2 * Math.PI * radius;
-  const dashOffset = circumference * 0.25; // Start at 12 o'clock
+  const dashOffset = circumference * 0.25;
 
   return (
     <div className={styles.loaderContainer}>

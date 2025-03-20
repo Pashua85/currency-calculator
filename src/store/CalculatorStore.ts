@@ -58,6 +58,13 @@ export class CalculatorStore {
     this.setOutAmountRange(true);
   }
 
+
+  /**
+   * Обработчик изменения значения в инпуте
+   * 
+   * @param {string} value - новое значение инпута
+   * @param {AmountTypes} amountType - Тип количества (отдаваемое или получаемое).
+   */
   public handleInputChange = (value: string, amountType: AmountTypes) => {
     const numericNewValue = parseFloat(value);
     const isNewValueNaN = isNaN(numericNewValue);
@@ -87,6 +94,12 @@ export class CalculatorStore {
     this.throttledOnAmountChange(numericNewValue, amountType);
   };
 
+  /**
+   * Обрабатывает изменение процента для указанного типа количества.
+   * 
+   * @param {number} value - Новое значение процента.
+   * @param {AmountTypes} amountType - Тип количества (отдаваемое или получаемое).
+   */
   public handlePercentageChange = (value: number, amountType: AmountTypes) => {
     if (amountType === AmountTypes.IN_AMOUNT) {
       this.percentageIn = value;
@@ -115,6 +128,11 @@ export class CalculatorStore {
     this.handleInputChange(newValue, amountType);
   };
 
+  /**
+   * Высчитывает числовое значение из диапазона на основе процента
+   * @param {CalcByPercentageData} options - Содержит min, max, percent, и шаг шаг точности.
+   * @returns {string} Получаемое значение.
+   */
   private calculateValueFromPercent = (options: CalcByPercentageData): string => {
     if (options.percent < 0 || options.percent > 100) {
       throw new Error('Процент должен быть от 0 до 100');
@@ -133,6 +151,13 @@ export class CalculatorStore {
     return roundedValue.toString();
   };
 
+  /**
+   * Рассчитывает процент значения в указанном диапазоне.
+   * 
+   * @param {CalcPercentageByValueData} options - Содержит минимальное значение, максимальное значение, значение и необязательную точность.
+   * @returns {number} Рассчитанный процент.
+   * @throws {Error} Если минимальное значение не меньше максимального, или если значение не находится в диапазоне [минимальное, максимальное].
+   */
   private calculatePercentageByValue = (options: CalcPercentageByValueData): number => {
     // Проверка, чтобы минимальное значение было меньше максимального
     if (options.min >= options.max) {
@@ -160,6 +185,12 @@ export class CalculatorStore {
     }
   }
 
+  /**
+   * Обрабатывает изменение числового значения для указанного типа количества и обновляет связанные данные.
+   * 
+   * @param {number} value - Новое значение количества.
+   * @param {AmountTypes} amountType - Тип количества (входящее или отдаваемое).
+   */
   private onAmountChange = async (value: number, amountType: AmountTypes) => {
     const requestData = this.prepareData(value, amountType);
     const data = await this.fetchData(requestData);
@@ -199,11 +230,19 @@ export class CalculatorStore {
     }
   };
 
+  /**
+   * Устанавливает ограничения на количество десятичных знаков в полях.
+   */
   private setDecimalLimits = () => {
     this.decimalLimitIn = this.stepIn.toString().split('.')[1]?.length ?? 0;
     this.decimalLimitOut = this.stepOut.toString().split('.')[1]?.length ?? 0;
   };
 
+  /**
+   * Устанавливает диапазон получаемого количества на основе минимального и максимального значений отдаваемого количества.
+   * 
+   * @param {boolean} [withSetInitValues=false] - Флаг для установки начальных значений входящего или отдаваемого количества.
+   */
   private setOutAmountRange = async (withSetInitValues = false) => {
     const requestDataForMin = this.prepareData(this.inAmountMin, AmountTypes.IN_AMOUNT);
     const dataForMin = await this.fetchData(requestDataForMin);
@@ -232,12 +271,21 @@ export class CalculatorStore {
     }
   };
 
+  /**
+   * Подготавливает данные для запроса.
+   */
   private prepareData = (value: number, amountType: AmountTypes): FetchData => {
     const restAmount =
       amountType === AmountTypes.IN_AMOUNT ? AmountTypes.OUT_AMOUNT : AmountTypes.IN_AMOUNT;
     return { [amountType]: value, [restAmount]: null };
   };
 
+  /**
+   * 
+   * Получение данных с расчетом по курсу
+   * @param {FetchData} data - Данные для отправки в запросе.
+   * @returns {Promise<CalcResponseData | null>} Обещание с данными ответа или null в случае ошибки.
+   */
   private async fetchData(data: FetchData): Promise<CalcResponseData | null> {
     try {
       const resp = await axiosInstance.post<
@@ -248,8 +296,6 @@ export class CalculatorStore {
         pairId: PAIR_ID,
         ...data,
       });
-
-      console.log({ respFromStore: resp });
 
       return resp.data;
     } catch (err) {

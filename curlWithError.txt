@@ -1,9 +1,0 @@
-curl --location 'https://awx.pro/b2api/change/user/pair/calc' \
---header 'serial: a7307e89-fbeb-4b28-a8ce-55b7fb3c32aa' \
---header 'Content-Type: application/json' \
---data '{
-    "pairId": 133,
-    "inAmount": 1,
-    "outAmount": null
-}
-'

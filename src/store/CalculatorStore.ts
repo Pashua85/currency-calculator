@@ -14,7 +14,7 @@ import { delay } from '@/utils';
 import { AxiosResponse } from 'axios';
 import Decimal from 'decimal.js-light';
 import { makeAutoObservable } from 'mobx';
-import { isEqual, throttle } from 'lodash';
+import { debounce, isEqual } from 'lodash';
 
 export class CalculatorStore {
   public inAmountString = '0';
@@ -51,7 +51,7 @@ export class CalculatorStore {
   constructor() {
     makeAutoObservable(this);
 
-    this.throttledOnAmountChange = throttle(this.onAmountChange, REQUEST_DELAY_MS);
+    this.throttledOnAmountChange = debounce(this.onAmountChange, REQUEST_DELAY_MS);
 
     this.setDecimalLimits();
 

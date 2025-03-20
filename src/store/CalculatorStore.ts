@@ -46,12 +46,12 @@ export class CalculatorStore {
   /** Актуальный курс по которому приходили последние данные */
   private lastActualPrice: [string, string] | null = null;
 
-  private throttledOnAmountChange: (value: number, amountType: AmountTypes) => void;
+  private debouncedOnAmountChange: (value: number, amountType: AmountTypes) => void;
 
   constructor() {
     makeAutoObservable(this);
 
-    this.throttledOnAmountChange = debounce(this.onAmountChange, REQUEST_DELAY_MS);
+    this.debouncedOnAmountChange = debounce(this.onAmountChange, REQUEST_DELAY_MS);
 
     this.setDecimalLimits();
 
@@ -70,14 +70,14 @@ export class CalculatorStore {
 
     if (isNewValueNaN && amountType === AmountTypes.IN_AMOUNT) {
       this.inAmountString = this.inAmountMin.toString();
-      this.throttledOnAmountChange(this.inAmountMin, amountType);
+      this.debouncedOnAmountChange(this.inAmountMin, amountType);
       this.percentageIn = 0;
       return;
     }
 
     if (isNewValueNaN && amountType === AmountTypes.OUT_AMOUNT) {
       this.inAmountString = (this.outAmountMin ?? 0).toString();
-      this.throttledOnAmountChange(this.outAmountMin ?? 0, amountType);
+      this.debouncedOnAmountChange(this.outAmountMin ?? 0, amountType);
       this.percentageOut = 0;
       return;
     }
@@ -90,7 +90,7 @@ export class CalculatorStore {
       this.outAmountString = value;
     }
 
-    this.throttledOnAmountChange(numericNewValue, amountType);
+    this.debouncedOnAmountChange(numericNewValue, amountType);
   };
 
   /**
@@ -213,13 +213,14 @@ export class CalculatorStore {
 
     if (amountType === AmountTypes.IN_AMOUNT) {
       this.outAmountString = data.outAmount;
-      this.percentageOut  = this.calculatePercentageByValue(percentageCalcData[AmountTypes.OUT_AMOUNT]);
+      
     }
 
     if (amountType === AmountTypes.OUT_AMOUNT) {
       this.inAmountString = data.inAmount;
-      this.percentageIn  = this.calculatePercentageByValue(percentageCalcData[AmountTypes.IN_AMOUNT]);
     }
+    this.percentageIn  = this.calculatePercentageByValue(percentageCalcData[AmountTypes.IN_AMOUNT]);
+    this.percentageOut  = this.calculatePercentageByValue(percentageCalcData[AmountTypes.OUT_AMOUNT]);
 
     /** В случае изменения курса происходит перерасчет диапазона получаемого количества */
     if (this.lastActualPrice && !isEqual(this.lastActualPrice, data.price)) {

@@ -3,12 +3,12 @@ import classes from './Calculator.module.scss';
 
 import { useCalculatorStore } from '@/store';
 import { observer } from 'mobx-react-lite';
-import { AltCalculatorField } from '../AltCalculatorField/AltCalculatorField';
 import { AmountTypes } from '@/enums';
 import { Loader } from '../Loader/Loader';
+import { CalculatorField } from '../CalculatorField/CalculatorField';
 
 
-export const AltCalculator: FC = observer(() => {
+export const Calculator: FC = observer(() => {
   const { isLoaderVisible } = useCalculatorStore();
 
   return (
@@ -19,8 +19,8 @@ export const AltCalculator: FC = observer(() => {
         </div>
       )}
 
-      <AltCalculatorField amountType={AmountTypes.IN_AMOUNT} />
-      <AltCalculatorField amountType={AmountTypes.OUT_AMOUNT} />
+      <CalculatorField amountType={AmountTypes.IN_AMOUNT} />
+      <CalculatorField amountType={AmountTypes.OUT_AMOUNT} />
     </div>
   );
 });

@@ -1,25 +1,18 @@
-import { FC, useContext, useMemo } from 'react';
+import { FC } from 'react';
 import classes from './CalculatorField.module.scss';
 import { CustomInput } from '../CustomInput/CustomInput';
-import { Currencies } from '../../enums/currencies.enum';
 import { PercentageBar } from '../PercentageBar/PercentageBar';
 import { PercentageSlider } from '../PercentageSlider/PercentageSlider';
 import { useCalculatorStore } from '@/store';
 import { observer } from 'mobx-react-lite';
-import CalculatorStoreContext from '@/store/CalculatorStoreContext';
 import { AmountTypes } from '@/enums';
 import { CURRENCIES } from '@/constants';
 
 interface Props {
-  // value: string;
-  // onInputChange: (newValue: string, currency: Currencies) => void;
-  // onPercentageChange: (newValue: number, currency: Currencies) => void;
   amountType: AmountTypes;
-  // decimalLimit?: number | null;
-  // activePercentage: number;
 }
 
-export const AltCalculatorField: FC<Props> = observer(({ amountType }) => {
+export const CalculatorField: FC<Props> = observer(({ amountType }) => {
   const {
     inAmountString,
     outAmountString,
@@ -37,16 +30,6 @@ export const AltCalculatorField: FC<Props> = observer(({ amountType }) => {
     percentageIn,
     percentageOut,
   } = useCalculatorStore();
-
-  // const handleChange = (newValue: string, currency: Currencies) => {
-  //   if (currency === Currencies.RUB) {
-  //     handleInAmountChange(newValue);
-  //   }
-  // }
-
-  // const currency = useMemo(() => {
-  //   return CURRENCIES[amountType]
-  // }, [amountType])
 
   const propsData = {
     [AmountTypes.IN_AMOUNT]: {

@@ -14,7 +14,7 @@ import { delay } from '@/utils';
 import { AxiosResponse } from 'axios';
 import Decimal from 'decimal.js-light';
 import { makeAutoObservable } from 'mobx';
-import { throttle } from 'lodash';
+import { isEqual, throttle } from 'lodash';
 
 export class CalculatorStore {
   public inAmountString = '0';
@@ -43,6 +43,7 @@ export class CalculatorStore {
 
   public stepOut = OUT_AMOUNT_STEP;
 
+  /** Актуальный курс по которому приходили последние данные */
   private lastActualPrice: [string, string] | null = null;
 
   private throttledOnAmountChange: (value: number, amountType: AmountTypes) => void;
@@ -191,6 +192,11 @@ export class CalculatorStore {
       this.inAmountString = data.inAmount;
       this.percentageIn  = this.calculatePercentageByValue(percentageCalcData[AmountTypes.IN_AMOUNT]);
     }
+
+    /** В случае изменения курса происходит перерасчет диапазона получаемого количества */
+    if (this.lastActualPrice && !isEqual(this.lastActualPrice, data.price)) {
+      this.setOutAmountRange();
+    }
   };
 
   private setDecimalLimits = () => {
@@ -231,7 +237,6 @@ export class CalculatorStore {
       amountType === AmountTypes.IN_AMOUNT ? AmountTypes.OUT_AMOUNT : AmountTypes.IN_AMOUNT;
     return { [amountType]: value, [restAmount]: null };
   };
-
 
   private async fetchData(data: FetchData): Promise<CalcResponseData | null> {
     try {

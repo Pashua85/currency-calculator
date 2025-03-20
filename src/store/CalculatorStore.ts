@@ -58,7 +58,6 @@ export class CalculatorStore {
     this.setOutAmountRange(true);
   }
 
-
   /**
    * Обработчик изменения значения в инпуте
    * 
@@ -113,13 +112,13 @@ export class CalculatorStore {
         min: this.inAmountMin,
         max: this.inAmountMax,
         percent: value,
-        precision: this.stepIn,
+        precision: this.decimalLimitIn,
       },
       [AmountTypes.OUT_AMOUNT]: {
         min: this.outAmountMin ?? 0,
         max: this.outAmountMax ?? 0,
         percent: value,
-        precision: this.stepOut,
+        precision: this.decimalLimitOut,
       },
     };
 
@@ -133,21 +132,21 @@ export class CalculatorStore {
    * @param {CalcByPercentageData} options - Содержит min, max, percent, и шаг шаг точности.
    * @returns {string} Получаемое значение.
    */
-  private calculateValueFromPercent = (options: CalcByPercentageData): string => {
-    if (options.percent < 0 || options.percent > 100) {
+  private calculateValueFromPercent = ({ percent, max, min, precision }: CalcByPercentageData): string => { 
+    if (percent < 0 || percent > 100) {
       throw new Error('Процент должен быть от 0 до 100');
     }
-
-    const minDecimal = new Decimal(options.min.toString());
-    const maxDecimal = new Decimal(options.max.toString());
-    const percentDecimal = new Decimal(options.percent.toString());
-
+  
+    const minDecimal = new Decimal(min.toString());
+    const maxDecimal = new Decimal(max.toString());
+    const percentDecimal = new Decimal(percent.toString());
+  
     const value = minDecimal.add(maxDecimal.sub(minDecimal).mul(percentDecimal.div(100)));
-
-    const decimalPlaces = (options.precision ?? 1).toString().length - 1;
-
+  
+    const decimalPlaces = precision ?? 0; 
+  
     const roundedValue = value.toDecimalPlaces(decimalPlaces);
-
+  
     return roundedValue.toString();
   };
 
@@ -156,29 +155,27 @@ export class CalculatorStore {
    * 
    * @param {CalcPercentageByValueData} options - Содержит минимальное значение, максимальное значение, значение и необязательную точность.
    * @returns {number} Рассчитанный процент.
-   * @throws {Error} Если минимальное значение не меньше максимального, или если значение не находится в диапазоне [минимальное, максимальное].
    */
-  private calculatePercentageByValue = (options: CalcPercentageByValueData): number => {
-    // Проверка, чтобы минимальное значение было меньше максимального
-    if (options.min >= options.max) {
-      throw new Error('Минимальное значение должно быть меньше максимального');
+  private calculatePercentageByValue = ({ min, max, precision, value}: CalcPercentageByValueData): number => {
+
+    if (value < min) {
+      value = min;
+    }
+
+    if (value > max) {
+      value = max;
     }
   
-    // Проверка, чтобы значение было в диапазоне от минимального до максимального
-    if (options.value < options.min || options.value > options.max) {
-      throw new Error('Значение должно быть в диапазоне от минимального до максимального');
-    }
-  
-    const valueDecimal = new Decimal(options.value.toString());
-    const minDecimal = new Decimal(options.min.toString());
-    const maxDecimal = new Decimal(options.max.toString());
+    const valueDecimal = new Decimal(value.toString());
+    const minDecimal = new Decimal(min.toString());
+    const maxDecimal = new Decimal(max.toString());
   
     const range = maxDecimal.sub(minDecimal);
     const percentage = valueDecimal.sub(minDecimal).div(range).mul(100);
   
     // Округление результата до указанной точности
-    if (options.precision !== undefined) {
-      const roundedPercentage = percentage.toDecimalPlaces(options.precision);
+    if (precision !== undefined) {
+      const roundedPercentage = percentage.toDecimalPlaces(precision);
       return roundedPercentage.toNumber();
     } else {
       return percentage.toNumber();

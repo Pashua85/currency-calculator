@@ -1,4 +1,4 @@
-import { ChangeEventHandler, ClipboardEventHandler, FC, KeyboardEventHandler } from 'react';
+import { ChangeEventHandler, ClipboardEventHandler, FC, KeyboardEventHandler, useEffect, useRef, useState } from 'react';
 import classes from './CustomInput.module.scss';
 import { Currencies } from '../../enums/currencies.enum';
 import Decimal from 'decimal.js-light';
@@ -25,6 +25,15 @@ export const CustomInput: FC<Props> = ({
   decimalLimit = null,
   disabled = false,
 }) => {
+  const [localValue, setLocalValue] = useState(value ?? '');
+
+  useEffect(() => {
+    if (value !== localValue) {
+      setLocalValue(value);
+    }
+  }, [value]);
+
+
   const handleChange = (newValue: string) => {
     const newValueNum = parseFloat(newValue);
 
@@ -36,7 +45,13 @@ export const CustomInput: FC<Props> = ({
       return;
     }
 
-    if (!isNaN(newValueNum) && newValueNum >= min && newValueNum <= max) {
+    if (newValue === '' || newValueNum <= max) {
+      setLocalValue(newValue);
+    }
+
+
+
+    if (!isNaN(newValueNum) && newValueNum >= min && newValueNum <= max && newValueNum % step === 0) {
       onChange(newValue);
     }
   };
@@ -54,7 +69,7 @@ export const CustomInput: FC<Props> = ({
 
     if (value === '0' && event.key.match(/[1-9]/g)) {
       event.preventDefault();
-      onChange(event.key);
+      handleChange(event.key);
       return;
     }
 
@@ -62,7 +77,7 @@ export const CustomInput: FC<Props> = ({
       const possibleValue = subtractStep(value, step);
 
       if (!isNaN(possibleValue) && possibleValue >= min) {
-        onChange(possibleValue.toString());
+        handleChange(possibleValue.toString());
       }
       return;
     }
@@ -71,7 +86,7 @@ export const CustomInput: FC<Props> = ({
       const possibleValue = addStep(value, step);
 
       if (!isNaN(possibleValue) && possibleValue <= max) {
-        onChange(possibleValue.toString());
+        handleChange(possibleValue.toString());
       }
       return;
     }
@@ -87,7 +102,14 @@ export const CustomInput: FC<Props> = ({
     }
 
     if (event.key === ',') {
-      onChange(value + '.');
+      const caretPosition = (event.target as HTMLInputElement).selectionStart;
+      const newValue = caretPosition ? [
+        value.slice(0, caretPosition),
+        '.',
+        value.slice(caretPosition)
+      ].join('') : value + '.';
+
+      handleChange(newValue);
       event.preventDefault();
       return;
     }
@@ -109,15 +131,22 @@ export const CustomInput: FC<Props> = ({
     }
   };
 
+  const handleBlur = () => {
+    if (value !== localValue) {
+      setLocalValue(value);
+    }
+  }
+
   return (
     <div className={classes.input__wrapper}>
       <input
         className={classes.input}
-        value={value}
+        value={localValue}
         onChange={handleChangeEvent}
         onKeyDown={handleKeyDown}
         disabled={disabled}
         onPaste={handlePaste}
+        onBlur={handleBlur}
       />
       <div className={classes.input__currency}>{currency}</div>
     </div>

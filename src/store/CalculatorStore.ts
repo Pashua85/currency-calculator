@@ -65,6 +65,7 @@ export class CalculatorStore {
    * @param {AmountTypes} amountType - Тип количества (отдаваемое или получаемое).
    */
   public handleInputChange = (value: string, amountType: AmountTypes) => {
+
     const numericNewValue = parseFloat(value);
     const isNewValueNaN = isNaN(numericNewValue);
 

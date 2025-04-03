@@ -50,7 +50,7 @@ export class CalculatorStore {
   /** Актуальный курс по которому приходили последние данные */
   private lastActualPrice: [string, string] | null = null;
 
-  private debouncedOnAmountChange: (value: number, amountType: AmountTypes) => void;
+  private debouncedOnAmountChange: (value: number, amountType: AmountTypes, withSeparatePercentageUpdate?: boolean) => void;
 
   constructor() {
     makeAutoObservable(this);
@@ -68,21 +68,21 @@ export class CalculatorStore {
    * @param {string} value - новое значение инпута
    * @param {AmountTypes} amountType - Тип количества (отдаваемое или получаемое).
    */
-  public handleInputChange = (value: string, amountType: AmountTypes) => {
+  public handleInputChange = (value: string, amountType: AmountTypes, withSeparatePercentageUpdate = false ) => {
 
     const numericNewValue = parseFloat(value);
     const isNewValueNaN = isNaN(numericNewValue);
 
     if (isNewValueNaN && amountType === AmountTypes.IN_AMOUNT) {
       this.inAmountString = this.inAmountMin.toString();
-      this.debouncedOnAmountChange(this.inAmountMin, amountType);
+      this.debouncedOnAmountChange(this.inAmountMin, amountType, withSeparatePercentageUpdate);
       this.percentageIn = 0;
       return;
     }
 
     if (isNewValueNaN && amountType === AmountTypes.OUT_AMOUNT) {
       this.inAmountString = (this.outAmountMin ?? 0).toString();
-      this.debouncedOnAmountChange(this.outAmountMin ?? 0, amountType);
+      this.debouncedOnAmountChange(this.outAmountMin ?? 0, amountType, withSeparatePercentageUpdate);
       this.percentageOut = 0;
       return;
     }
@@ -95,7 +95,7 @@ export class CalculatorStore {
       this.outAmountString = value;
     }
 
-    this.debouncedOnAmountChange(numericNewValue, amountType);
+    this.debouncedOnAmountChange(numericNewValue, amountType, withSeparatePercentageUpdate);
   };
 
   /**
@@ -129,7 +129,7 @@ export class CalculatorStore {
 
     const newValue = this.calculateValueFromPercent(data[amountType]);
 
-    this.handleInputChange(newValue, amountType);
+    this.handleInputChange(newValue, amountType, true);
   };
 
   /**
@@ -193,7 +193,7 @@ export class CalculatorStore {
    * @param {number} value - Новое значение количества.
    * @param {AmountTypes} amountType - Тип количества (входящее или отдаваемое).
    */
-  private onAmountChange = async (value: number, amountType: AmountTypes) => {
+  private onAmountChange = async (value: number, amountType: AmountTypes, withSeparatePercentageUpdate = false) => {
     const requestData = this.prepareData(value, amountType);
     const data = await this.fetchData(requestData);
 
@@ -225,10 +225,16 @@ export class CalculatorStore {
       this.inAmountString = data.inAmount;
     }
 
-    if (amountType === AmountTypes.IN_AMOUNT) {
+    if (!withSeparatePercentageUpdate) {
       this.percentageOut  = this.calculatePercentageByValue(percentageCalcData[AmountTypes.OUT_AMOUNT]);
-    } else {
       this.percentageIn  = this.calculatePercentageByValue(percentageCalcData[AmountTypes.IN_AMOUNT]);
+    } else {
+      if (amountType === AmountTypes.IN_AMOUNT) {
+        this.percentageOut  = this.calculatePercentageByValue(percentageCalcData[AmountTypes.OUT_AMOUNT]);
+      }
+      if (amountType === AmountTypes.OUT_AMOUNT) {
+        this.percentageIn  = this.calculatePercentageByValue(percentageCalcData[AmountTypes.IN_AMOUNT]);
+      }
     }
 
     /** В случае изменения курса происходит перерасчет диапазона получаемого количества */

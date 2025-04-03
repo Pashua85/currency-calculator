@@ -68,6 +68,9 @@ export const CalculatorField: FC<Props> = observer(({ amountType }) => {
       <PercentageSlider
         activePercentage={propsData.percentage}
         onChange={(value) => handlePercentageChange(value, amountType)}
+        min={propsData.min ?? 0}
+        max={propsData.max ?? 0}
+        step={propsData.step}
       ></PercentageSlider>
       <PercentageBar
         activePercentage={propsData.percentage}

@@ -1,4 +1,4 @@
-import { ChangeEventHandler, ClipboardEventHandler, FC, KeyboardEventHandler, useEffect, useRef, useState } from 'react';
+import { ChangeEventHandler, ClipboardEventHandler, FC, KeyboardEventHandler, useEffect, useState } from 'react';
 import classes from './CustomInput.module.scss';
 import { Currencies } from '../../enums/currencies.enum';
 import Decimal from 'decimal.js-light';
@@ -36,6 +36,7 @@ export const CustomInput: FC<Props> = ({
 
   const handleChange = (newValue: string) => {
     const newValueNum = parseFloat(newValue);
+    console.log({newValue})
 
     if (
       typeof decimalLimit === 'number' &&
@@ -49,9 +50,14 @@ export const CustomInput: FC<Props> = ({
       setLocalValue(newValue);
     }
 
+    const dividend = new Decimal(newValueNum);
+    const divisor = new Decimal(step);
+    const quotient = new Decimal(Math.floor(dividend.div(divisor).toNumber()));
 
+    const remainder = dividend.minus(quotient.mul(divisor)).toNumber();
 
-    if (!isNaN(newValueNum) && newValueNum >= min && newValueNum <= max && newValueNum % step === 0) {
+    if (!isNaN(newValueNum) && newValueNum >= min && newValueNum <= max && remainder === 0) {
+      console.log({NEW_VALUE_FOR_ONCHNAG: newValue});
       onChange(newValue);
     }
   };

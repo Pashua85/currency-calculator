@@ -10,7 +10,7 @@ import {
 import { AmountTypes } from '@/enums';
 import { CalcByPercentageData, CalcPercentageByValueData, CalcRequestData, CalcResponseData } from '@/interfaces';
 import { FetchData } from '@/types';
-import { delay } from '@/utils';
+import { calculatePercentageStep, delay } from '@/utils';
 import { AxiosResponse } from 'axios';
 import Decimal from 'decimal.js-light';
 import { makeAutoObservable } from 'mobx';
@@ -43,6 +43,10 @@ export class CalculatorStore {
 
   public stepOut = OUT_AMOUNT_STEP;
 
+  private percentagePrecisionIn: number = 4;
+
+  private percentagePrecisionOut: number = 4;
+
   /** Актуальный курс по которому приходили последние данные */
   private lastActualPrice: [string, string] | null = null;
 
@@ -55,7 +59,7 @@ export class CalculatorStore {
 
     this.setDecimalLimits();
 
-    this.setOutAmountRange(true);
+    this.setOutAmountRange(true, true);
   }
 
   /**
@@ -202,13 +206,13 @@ export class CalculatorStore {
         min: this.inAmountMin,
         max: this.inAmountMax,
         value: Number(data.inAmount),
-        precision: 4,
+        precision: this.percentagePrecisionIn,
       },
       [AmountTypes.OUT_AMOUNT]: {
         min: this.outAmountMin ?? 0,
         max: this.outAmountMax ?? 1000,
         value: Number(data.outAmount),
-        precision: 4,
+        precision: this.percentagePrecisionOut,
       }
     }
 
@@ -220,8 +224,12 @@ export class CalculatorStore {
     if (amountType === AmountTypes.OUT_AMOUNT) {
       this.inAmountString = data.inAmount;
     }
-    this.percentageIn  = this.calculatePercentageByValue(percentageCalcData[AmountTypes.IN_AMOUNT]);
-    this.percentageOut  = this.calculatePercentageByValue(percentageCalcData[AmountTypes.OUT_AMOUNT]);
+
+    if (amountType === AmountTypes.IN_AMOUNT) {
+      this.percentageOut  = this.calculatePercentageByValue(percentageCalcData[AmountTypes.OUT_AMOUNT]);
+    } else {
+      this.percentageIn  = this.calculatePercentageByValue(percentageCalcData[AmountTypes.IN_AMOUNT]);
+    }
 
     /** В случае изменения курса происходит перерасчет диапазона получаемого количества */
     if (this.lastActualPrice && !isEqual(this.lastActualPrice, data.price)) {
@@ -241,8 +249,9 @@ export class CalculatorStore {
    * Устанавливает диапазон получаемого количества на основе минимального и максимального значений отдаваемого количества.
    * 
    * @param {boolean} [withSetInitValues=false] - Флаг для установки начальных значений входящего или отдаваемого количества.
+   * @param {boolean} [withSetPercentagePrecision=false] - Флаг для установки максимального количества цифр после запятой в процентах.
    */
-  private setOutAmountRange = async (withSetInitValues = false) => {
+  private setOutAmountRange = async (withSetInitValues = false, withSetPercentagePrecision = false) => {
     const requestDataForMin = this.prepareData(this.inAmountMin, AmountTypes.IN_AMOUNT);
     const dataForMin = await this.fetchData(requestDataForMin);
 
@@ -267,6 +276,11 @@ export class CalculatorStore {
     if (withSetInitValues) {
       this.inAmountString = dataForMin.inAmount;
       this.outAmountString = dataForMin.outAmount;
+    }
+
+    if (withSetPercentagePrecision) {
+      this.percentagePrecisionIn = calculatePercentageStep({ min: this.inAmountMin, max: this.inAmountMax, step: this.stepIn}).toString().split('.')[1]?.length ?? 0;
+      this.percentagePrecisionOut = calculatePercentageStep({ min: this.outAmountMin, max: this.outAmountMax, step: this.stepOut}).toString().split('.')[1]?.length ?? 0;
     }
   };
 

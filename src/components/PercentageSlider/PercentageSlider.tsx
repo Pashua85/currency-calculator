@@ -1,6 +1,7 @@
-import { ChangeEventHandler, FC, useMemo } from 'react';
+import { FC, useMemo } from 'react';
 import classes from './PercentageSlider.module.scss';
 import { calculatePercentageStep } from '@/utils';
+import { Slider } from 'antd';
 
 interface Props {
   activePercentage: number;
@@ -15,19 +16,18 @@ export const PercentageSlider: FC<Props> = ({ activePercentage, onChange, min, m
     return calculatePercentageStep({ min, max, step})
   }, [min, max, step])
 
-  const handleChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    onChange(Number(event.target.value));
+  const handleChange = (value: number) => {
+    onChange(value);
   };
 
   return (
     <div className={classes.slider}>
       <div className={classes.slider__value}>{`${activePercentage} %`}</div>
-      <input
-        type='range'
+      <Slider
         className={classes.slider__input}
         step={stepInSlider}
-        min='0'
-        max='100'
+        min={0}
+        max={100}
         value={activePercentage}
         onChange={handleChange}
       />

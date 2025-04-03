@@ -36,7 +36,6 @@ export const CustomInput: FC<Props> = ({
 
   const handleChange = (newValue: string) => {
     const newValueNum = parseFloat(newValue);
-    console.log({newValue})
 
     if (
       typeof decimalLimit === 'number' &&
@@ -57,7 +56,6 @@ export const CustomInput: FC<Props> = ({
     const remainder = dividend.minus(quotient.mul(divisor)).toNumber();
 
     if (!isNaN(newValueNum) && newValueNum >= min && newValueNum <= max && remainder === 0) {
-      console.log({NEW_VALUE_FOR_ONCHNAG: newValue});
       onChange(newValue);
     }
   };

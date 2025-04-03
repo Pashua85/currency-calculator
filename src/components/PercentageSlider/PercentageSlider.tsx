@@ -16,7 +16,6 @@ export const PercentageSlider: FC<Props> = ({ activePercentage, onChange, min, m
   }, [min, max, step])
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    console.log({valueInSlider: event.target.value})
     onChange(Number(event.target.value));
   };
 
